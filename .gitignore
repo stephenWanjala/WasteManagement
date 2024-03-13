@@ -1,0 +1,22 @@
+.idea
+.venv
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+# Virtual environment
+venv/
+env/
+
+# Database
+db.sqlite3
+
+# Log files
+*.log
+
+# Temporary files
+*.bak
+*.swp
+*~
