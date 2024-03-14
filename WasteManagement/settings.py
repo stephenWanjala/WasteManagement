@@ -80,7 +80,7 @@ GEOIP_PATH = BASE_DIR / 'dbip_city_lite_2024_03.mmdb'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
