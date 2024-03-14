@@ -34,10 +34,4 @@ class CustomUserAdmin(admin.ModelAdmin):
 admin.site.site_header = 'Waste Management Admin'
 admin.site.site_title = 'Waste Management Admin Portal'
 admin.site.index_title = 'Welcome to Waste Management Admin Portal'
-admin.site.register(models.Resident)
-admin.site.register(models.WasteType)
-admin.site.register(models.Waste)
-admin.site.register(models.WasteCollector)
-admin.site.register(models.IssueReport)
-admin.site.register(models.PickupZone)
-admin.site.register(models.Schedule)
+

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.utils.translation',
     'django.contrib.gis',
     'accounts.apps.AccountsConfig',
+    'wasteman.apps.WastemanConfig',
 ]
 
 MIDDLEWARE = [
