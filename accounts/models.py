@@ -46,6 +46,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
     first_name = models.CharField(_('first name'), max_length=100)
     last_name = models.CharField(_('last name'), max_length=100)
+    phone_number = models.CharField(_('phone number'), max_length=15, null=True, blank=True)
     is_resident = models.BooleanField(_('resident status'), default=False)
     is_collector = models.BooleanField(_('collector status'), default=False)
     location = gis_models.PointField(_('user location'), geography=True, null=True, blank=True)
@@ -82,6 +83,10 @@ class Waste(models.Model):
 
     def __str__(self):
         return f"{self.user.email}'s {self.type.name} - {self.quantity} kg"
+
+    class Meta:
+        verbose_name_plural = "Waste"
+        verbose_name = "Waste"
 
 
 class WasteCollector(models.Model):
