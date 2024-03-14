@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.utils.translation',
     'accounts.apps.AccountsConfig',
 ]
 
@@ -71,7 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'WasteManagement.wsgi.application'
 
-AUTH_USER_MODEL = 'accounts.WasteManUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
+GEOIP_PATH = BASE_DIR / 'dbip_city_lite_2024_03.mmdb'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
