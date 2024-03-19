@@ -5,6 +5,7 @@ attrs==23.2.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
 Django==5.0.3
+django-cors-headers==4.3.1
 frozenlist==1.4.1
 GDAL==3.8.4
 geoip2==4.8.0
@@ -17,4 +18,5 @@ sendgrid==6.11.0
 sqlparse==0.4.4
 starkbank-ecdsa==2.2.0
 urllib3==2.2.1
+whitenoise==6.6.0
 yarl==1.9.4
