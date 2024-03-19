@@ -12,6 +12,7 @@ geoip2==4.8.0
 idna==3.6
 maxminddb==2.5.2
 multidict==6.0.5
+numpy==1.26.4
 python-http-client==3.3.7
 requests==2.31.0
 sendgrid==6.11.0
