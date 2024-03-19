@@ -9,7 +9,7 @@ __pycache__/
 # Virtual environment
 venv/
 env/
-
+staticfiles_build
 # Database
 db.sqlite3
 
