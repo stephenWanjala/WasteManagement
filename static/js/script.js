@@ -251,11 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var totalChecked = document.querySelectorAll('.users-table .check:checked');
 
             if (totalCheckbox && totalChecked) {
-              if (totalCheckbox.length == totalChecked.length) {
-                checkAll.checked = true;
-              } else {
-                checkAll.checked = false;
-              }
+              checkAll.checked = totalCheckbox.length === totalChecked.length;
             }
           });
         };
