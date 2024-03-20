@@ -3,7 +3,6 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.gis.geos import Point
 from django.shortcuts import render, redirect
 
@@ -44,37 +43,29 @@ def register(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
         is_collector = request.POST.get('is_collector')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
 
         if password1 == password2:
             # Create the user
             user = CustomUser.objects.create_user(email=email, password=password1, phone_number=phone_number,
                                                   first_name=first_name, last_name=last_name)
-            # user.save()
 
-            # Get user's location using GeoIP2
-            try:
-                geoip_reader = GeoIP2()
-                ip_address = request.META.get('REMOTE_ADDR')
-                response = geoip_reader.city(ip_address)
-                user_location = Point(response.longitude, response.latitude)
+            # Save user's location
+            if latitude and longitude:
+                user_location = Point(float(longitude), float(latitude))
                 user.location = user_location
-                print("User location: ")
-                print(user.location)
                 user.save()
-            except Exception as e:
-                messages.error(request, f'Failed to get user location: {e}')
 
             # Create either a resident or a collector
             if is_collector == 'on':
                 WasteCollector.objects.create(user=user)
                 user.is_resident = False
                 user.is_collector = True
-                user.save()
             else:
                 Resident.objects.create(user=user)
                 user.is_resident = True
                 user.is_collector = False
-            user.save()
 
             # Authenticate and login the user
             user = authenticate(request, username=email, password=password1)

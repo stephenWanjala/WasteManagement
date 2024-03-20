@@ -5,7 +5,7 @@
         <article class="sign-up">
             <h1 class="sign-up__title">Get started</h1>
             <p class="sign-up__subtitle">Create An account </p>
-            <form class="sign-up-form form" method="post">
+            <form id="signup-form" class="sign-up-form form" method="post" onsubmit="return submitForm()">
                 {% csrf_token %}
                 {% if messages %}
                     {% for message in messages %}
@@ -15,6 +15,8 @@
                         </div>
                     {% endfor %}
                 {% endif %}
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
                 <label for="first_name" class="form-label-wrapper">
                     <p class="form-label">First Name</p>
                     <input class="form-input" type="text" placeholder="Enter your First Name" name="first_name" required>
@@ -55,4 +57,49 @@
             </form>
         </article>
     </main>
+
+    <script>
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocationToDjango, handleLocationError);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function sendLocationToDjango(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Populate hidden fields with latitude and longitude
+            document.getElementById('latitude').value = latitude;
+            document.getElementById('longitude').value = longitude;
+
+            // Submit the form
+            document.getElementById('signup-form').submit();
+        }
+
+        function handleLocationError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Location access is required for signing up. Please enable location access and try again.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        function submitForm() {
+            getUserLocation();
+            // Prevent form submission, it will be submitted after getting location
+            return false;
+        }
+    </script>
 {% endblock %}
