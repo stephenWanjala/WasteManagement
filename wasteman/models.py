@@ -48,7 +48,7 @@ class WasteCollector(models.Model):
         Assigns pickup zones to the waste collector based on their location.
         """
         # Get the waste collector's location
-        collector_location = self.location
+        collector_location = self.user.location
 
         # Get all pickup zones
         pickup_zones = PickupZone.objects.all()
