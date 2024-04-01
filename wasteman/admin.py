@@ -13,7 +13,7 @@ class ResidentAdmin(admin.ModelAdmin):
     ordering = ('user',)
     filter_horizontal = ()
     fieldsets = (
-        (None, {'fields': ('user', )}),
+        (None, {'fields': ('user',)}),
     )
     list_per_page = 20
 
@@ -27,6 +27,19 @@ class WasteCollectorAdmin(admin.ModelAdmin):
     filter_horizontal = ()
     fieldsets = (
         (None, {'fields': ('user', 'location')}),
+    )
+    list_per_page = 20
+
+
+@admin.register(models.CollectionStatus)
+class CollectionStatusAdmin(admin.ModelAdmin):
+    list_display = ('collector', 'schedule', 'status')
+    list_filter = ('collector', 'schedule')
+    search_fields = ('collector', 'schedule')
+    ordering = ('collector', 'schedule')
+    filter_horizontal = ()
+    fieldsets = (
+        (None, {'fields': ('collector', 'schedule', 'status')}),
     )
     list_per_page = 20
 
