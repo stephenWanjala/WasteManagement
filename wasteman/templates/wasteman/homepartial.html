@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WasteMan | Waste Management Dashboard</title>
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{% static 'css/style.min.css' %}">
+</head>
+
+<body>
+<div class="layer"></div>
+<!-- ! Body -->
+<a class="skip-link sr-only" href="#skip-target">Skip to content</a>
+<div class="page-flex">
+    <!-- ! Sidebar -->
+    {% include 'wasteman/sidebar.html' %}
+    <div class="main-wrapper">
+        <!-- ! Main nav -->
+        {% include 'wasteman/nav.html' %}
+        <!-- ! Main -->
+        {% block HomeContent %}
+
+        {% endblock %}
+        <!-- ! Footer -->
+        {% include 'wasteman/footer.html' %}
+    </div>
+</div>
+<!-- Chart library -->
+<script src="{% static 'plugins/chart.min.js' %}"></script>
+<!-- Icons library -->
+<script src="{% static 'plugins/feather.min.js' %}"></script>
+<!-- Custom scripts -->
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

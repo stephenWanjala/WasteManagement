@@ -13,7 +13,7 @@ class ResidentAdmin(admin.ModelAdmin):
     ordering = ('user',)
     filter_horizontal = ()
     fieldsets = (
-        (None, {'fields': ('user', 'location')}),
+        (None, {'fields': ('user', )}),
     )
     list_per_page = 20
 

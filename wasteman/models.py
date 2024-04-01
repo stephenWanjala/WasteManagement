@@ -1,18 +1,12 @@
-from datetime import date
-
-from django.contrib.auth.models import AbstractUser
 from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.db.models.functions import Distance
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import CustomUser
 
 
-# Create your models here.
 class WasteType(models.Model):
-    """
-    Model for waste types.
-    """
     name = models.CharField(max_length=100)
     description = models.TextField()
 
@@ -21,14 +15,12 @@ class WasteType(models.Model):
 
 
 class Waste(models.Model):
-    """
-    Model for waste.
-    """
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     type = models.ForeignKey(WasteType, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     location = gis_models.PointField(_('waste location'), geography=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    schedule = models.ForeignKey('Schedule', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.email}'s {self.type.name} - {self.quantity} kg"
@@ -39,36 +31,8 @@ class Waste(models.Model):
 
 
 class WasteCollector(models.Model):
-    """
-    Model for waste collectors.
-    """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
     location = gis_models.PointField(_('collector location'), geography=True, null=True, blank=True)
-
-    def assign_closest_pickup_zones(self):
-        """
-        Assigns pickup zones to the waste collector based on their location.
-        """
-        # Get the waste collector's location
-        collector_location = self.user.location
-
-        # Get all pickup zones
-        pickup_zones = PickupZone.objects.all()
-
-        # Calculate distances between the collector's location and pickup zones
-        closest_pickup_zones = sorted(
-            pickup_zones,
-            key=lambda zone: collector_location.distance(zone.location)
-        )
-
-        # Assign the closest pickup zones to the collector
-        for zone in closest_pickup_zones:
-            # Get or create a schedule for the pickup zone and the current date
-            schedule, created = Schedule.objects.get_or_create(pickup_zone=zone, date=date.today())
-
-            # Assign the collector to the schedule if not already assigned
-            if not schedule.waste_collectors.filter(pk=self.pk).exists():
-                schedule.waste_collectors.add(self)
 
     class Meta:
         verbose_name_plural = "Waste Collectors"
@@ -79,9 +43,6 @@ class WasteCollector(models.Model):
 
 
 class IssueReport(models.Model):
-    """
-    Model for issue reports.
-    """
     ISSUE_TYPE_CHOICES = (
         ('MissedPickup', 'Missed Pickup'),
         ('DamagedBin', 'Damaged Bin'),
@@ -106,9 +67,6 @@ class IssueReport(models.Model):
 
 
 class PickupZone(models.Model):
-    """
-    Model for pickup zones.
-    """
     name = models.CharField(max_length=100)
     location = gis_models.PointField(geography=True)
 
@@ -116,13 +74,10 @@ class PickupZone(models.Model):
         verbose_name_plural = "Pickup Zones"
 
     def __str__(self):
-        return f"{self.name} - {self.location.verbose_name} - {self.location.x}, {self.location.y}"
+        return f"{self.name} - {self.location.x}, {self.location.y}"
 
 
 class Schedule(models.Model):
-    """
-    Model for pickup schedules.
-    """
     pickup_zone = models.ForeignKey(PickupZone, on_delete=models.CASCADE)
     date = models.DateField()
     start_time = models.TimeField()
@@ -130,16 +85,39 @@ class Schedule(models.Model):
     waste_collectors = models.ManyToManyField(WasteCollector)
 
     class Meta:
-        verbose_name_plural = " Waste Schedules"
+        verbose_name_plural = "Waste Schedules"
+
+    def create_collection_status(self):
+        # Get all waste collectors assigned to this schedule
+        collectors = self.waste_collectors.all()
+        for collector in collectors:
+            # Create CollectionStatus instance for each collector
+            CollectionStatus.objects.create(schedule=self, collector=collector)
+            # Automatically assign nearest collectors
+            assign_nearest_collectors(self)
 
     def __str__(self):
         return f"{self.pickup_zone.name} - {self.date} - {self.start_time} - {self.end_time}"
 
 
+class CollectionStatus(models.Model):
+    schedule = models.OneToOneField(Schedule, on_delete=models.CASCADE)
+    collector = models.ForeignKey(WasteCollector, on_delete=models.CASCADE)
+    status_choices = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+    ]
+    status = models.CharField(max_length=20, choices=status_choices, default='Pending')
+
+    class Meta:
+        verbose_name_plural = "Collection Status"
+
+    def __str__(self):
+        return f"{self.collector.user.email} - {self.schedule} - {self.status}"
+
+
 class Resident(models.Model):
-    """
-    Model for residents.
-    """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
 
     def user_location(self):
@@ -150,3 +128,17 @@ class Resident(models.Model):
 
     def __str__(self):
         return self.user.email
+
+
+def assign_nearest_collectors(schedule):
+    # Get the pickup zone location
+    pickup_zone_location = schedule.pickup_zone.location
+
+    # Query all waste collectors sorted by distance to the pickup zone
+    nearest_collectors = WasteCollector.objects.annotate(
+        distance=Distance('location', pickup_zone_location)
+    ).order_by('distance')
+
+    # Assign the nearest collectors to the schedule
+    for collector in nearest_collectors:
+        schedule.waste_collectors.add(collector)
