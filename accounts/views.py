@@ -45,6 +45,7 @@ def register(request):
         is_collector = request.POST.get('is_collector')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
+        print(f"is collector: {is_collector}")
 
         if password1 == password2:
             # Create the user
@@ -59,13 +60,15 @@ def register(request):
 
             # Create either a resident or a collector
             if is_collector == 'on':
-                WasteCollector.objects.create(user=user)
-                user.is_resident = False
                 user.is_collector = True
+                user.is_resident = False
+                user.save()
+                WasteCollector.objects.create(user=user)
             else:
-                Resident.objects.create(user=user)
                 user.is_resident = True
                 user.is_collector = False
+                user.save()
+                Resident.objects.create(user=user)
 
             # Authenticate and login the user
             user = authenticate(request, username=email, password=password1)

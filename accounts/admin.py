@@ -13,7 +13,8 @@ class CustomUserAdmin(admin.ModelAdmin):
     filter_horizontal = ()
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'location')}),
+        ('Personal info',
+         {'fields': ('first_name', 'last_name', 'location', 'is_resident', 'is_collector', 'phone_number')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
     )
     readonly_fields = ('date_joined', 'last_login')
@@ -34,4 +35,3 @@ class CustomUserAdmin(admin.ModelAdmin):
 admin.site.site_header = 'Waste Management Admin'
 admin.site.site_title = 'Waste Management Admin Portal'
 admin.site.index_title = 'Welcome to Waste Management Admin Portal'
-
