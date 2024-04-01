@@ -22,12 +22,12 @@ class CustomUserAdmin(admin.ModelAdmin):
     actions = ('make_resident', 'make_collector')
 
     def make_resident(self, request, queryset):
-        queryset.update(is_resident=True)
+        queryset.update(is_resident=True,is_collector=False)
 
     make_resident.short_description = 'Mark selected users as residents'
 
     def make_collector(self, request, queryset):
-        queryset.update(is_collector=True)
+        queryset.update(is_collector=True,is_resident=False)
 
     make_collector.short_description = 'Mark selected users as waste collectors'
 

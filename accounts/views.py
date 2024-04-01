@@ -63,12 +63,12 @@ def register(request):
                 user.is_collector = True
                 user.is_resident = False
                 user.save()
-                WasteCollector.objects.create(user=user)
+                WasteCollector.objects.create(user=user,location=user.location)
             else:
                 user.is_resident = True
                 user.is_collector = False
                 user.save()
-                Resident.objects.create(user=user)
+                Resident.objects.create(user=user, location=user.location)
 
             # Authenticate and login the user
             user = authenticate(request, username=email, password=password1)

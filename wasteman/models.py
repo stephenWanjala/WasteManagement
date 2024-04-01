@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.gis.db import models as gis_models
 from django.db import models
@@ -139,6 +141,9 @@ class Resident(models.Model):
     Model for residents.
     """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+
+    def user_location(self):
+        return self.user.location
 
     class Meta:
         verbose_name_plural = "Residents"
