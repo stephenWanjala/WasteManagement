@@ -1,10 +1,45 @@
 {% extends 'wasteman/homepartial.html' %}
 {% block HomeContent %}
-	<main class="main users chart-page" id="skip-target">
-            <div class="container">
-                <h2 class="main-title">Dashboard</h2>
+    <main class="main users chart-page" id="skip-target">
+        <div class="container">
+        <h2 class="main-title">Waste Summary DashBoard</h2>
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="users-table table-wrapper">
+                        <table class="posts-table">
+                            <thead>
+                            <tr class="users-table-info">
+                                <th>Waste</th>
+                                <th>Type </th>
+                                <th>Quantity</th>
+                                <th>Location</th>
+                                <th>Schedule</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for waste in waste_summary %}
+                                <tr>
+                                    <td>
+                                        {{ waste.type }}
+                                    </td>
+                                    <td>
+                                        <div class="pages-table-img">
+                                            {{ waste.quantity }} Kg
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ waste.location }}
+
+                                    <td>{{ waste.schedule }}</td>
+                                </tr>
+                            {% endfor %}
 
 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </main>
+        </div>
+    </main>
 {% endblock %}
