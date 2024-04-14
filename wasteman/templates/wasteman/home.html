@@ -1,7 +1,8 @@
 {% extends 'wasteman/homepartial.html' %}
 {% block HomeContent %}
     <main class="main users chart-page" id="skip-target">
-        <div class="container">
+       {% if resident %}
+       	 <div class="container">
             <h2 class="main-title">Waste Summary DashBoard</h2>
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 class=" main-title  ">Schedule Waste Collection</h1>
@@ -61,5 +62,6 @@
                 {% include 'wasteman/schedule_waste_modal.html' %}
             </div>
         </div>
+       {% endif %}
     </main>
 {% endblock %}
