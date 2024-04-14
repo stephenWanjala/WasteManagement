@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.gis.db import models as gis_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from geopy import Nominatim
 
 
 class CustomUserManager(BaseUserManager):
@@ -55,6 +56,11 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUserManager()
+
+    def address(self):
+        geolocator = Nominatim(user_agent="waste_management_app")
+        location = geolocator.reverse((self.location.y, self.location.x))
+        return location.address.split(",")[0]
 
     def __str__(self):
         return self.email

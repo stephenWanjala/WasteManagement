@@ -1,0 +1,52 @@
+{% extends 'wasteman/homepartial.html' %}
+{% block HomeContent %}
+<main class="main users chart-page" id="skip-target">
+    <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Filed Issues</h1>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal"
+               data-bs-target="#reportIssueModal"><i
+                    class="fas fa-plus fa-sm text-white-50"></i> Report Issue</a>
+            {% include 'wasteman/report_issue_modal.html' %}
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-10">
+
+                <div class="users-table table-wrapper">
+                    <table class="posts-table">
+                        <thead>
+                        <tr class="users-table-info">
+                            <th>Issue</th>
+                            <th>Description</th>
+                            <th>Status</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for issue in issues %}
+                        <tr>
+                            <td>{{ issue.issue_type }}</td>
+                            <td>{{ issue.description }}</td>
+                            <td>{{ issue.status }}</td>
+                        {% empty %}
+                            <td colspan="4">No issues found</td>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
