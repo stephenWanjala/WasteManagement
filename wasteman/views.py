@@ -34,7 +34,7 @@ def home(request):
                         waste_type = WasteType.objects.create(name=waste_type_name, description=waste_type_desc)
                         waste_schedule = Schedule.objects.create(date=date, start_time=start_time, end_time=end_time,
                                                                  pickup_zone=pickup_zone)
-                        waste = Waste.objects.create(schedule=waste_schedule, quantity=quantity, user=user,
+                        waste = Waste.objects.create(schedule=waste_schedule, quantity=quantity, user=resident.user,
                                                      type=waste_type)
 
                         messages.success(request, 'Waste entry created successfully')
