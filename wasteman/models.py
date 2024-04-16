@@ -43,6 +43,7 @@ class Waste(models.Model):
 class Meta:
     verbose_name_plural = "Waste"
     verbose_name = "Waste"
+    unique_together = ('schedule',)
 
 
 class WasteCollector(models.Model):

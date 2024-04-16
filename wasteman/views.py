@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
 
 from accounts.forms import IssueReportForm
@@ -11,13 +11,15 @@ from wasteman.models import Waste, Schedule, IssueReport, WasteType, PickupZone,
 def home(request):
     if request.user.is_superuser:
         return redirect('admin')
+
     try:
         resident = get_object_or_404(Resident, user=request.user.id)
         if resident:
-            waste_summary = Waste.objects.all()[:5]
+            waste_summary = Waste.objects.all()
             recent_issues = IssueReport.objects.all()[:5]
             upcoming_schedules = Schedule.objects.all()[:5]
             pickup_zones = PickupZone.objects.all()
+
             if request.method == 'POST':
                 date = request.POST.get('date')
                 start_time = request.POST.get('startTime')
@@ -29,45 +31,34 @@ def home(request):
 
                 pickup_zone = get_object_or_404(PickupZone, pk=pickup_zone_id)
 
-                try:
-                    with transaction.atomic():
-                        waste_type = WasteType.objects.create(name=waste_type_name, description=waste_type_desc)
-                        waste_schedule = Schedule.objects.create(date=date, start_time=start_time, end_time=end_time,
-                                                                 pickup_zone=pickup_zone)
-                        waste = Waste.objects.create(schedule=waste_schedule, quantity=quantity, user=resident.user,
-                                                     type=waste_type)
+                with transaction.atomic():
+                    waste_type = WasteType.objects.create(name=waste_type_name, description=waste_type_desc)
+                    waste_schedule = Schedule.objects.create(date=date, start_time=start_time, end_time=end_time,
+                                                             pickup_zone=pickup_zone)
+                    waste = Waste.objects.create(schedule=waste_schedule, quantity=quantity, user=resident.user,
+                                                 type=waste_type)
 
-                        messages.success(request, 'Waste entry created successfully')
-                        return redirect('home')
+                messages.success(request, 'Waste entry created successfully')
+                return redirect('home')
 
-                except IntegrityError as e:
-                    # Handle unique constraint violation
-                    messages.error(request,
-                                   'An error occurred while creating a waste entry: Unique constraint violated')
-                    print(f"IntegrityError: {e}")
+            # Rendering the page after POST request or for GET request
+            context = {
+                'waste_summary': waste_summary,
+                'recent_issues': recent_issues,
+                'upcoming_schedules': upcoming_schedules,
+                'pickup_zones': pickup_zones,
+                'resident': True,
+                'messages': messages.get_messages(request),
+            }
 
-                except Exception as e:
-                    # Handle other exceptions
-                    messages.error(request, 'An error occurred while creating a waste entry')
-                    messages.error(request, f"Error: {e}")
-                    print(f"Error: {e}")
-
-                    context = {
-                        'waste_summary': waste_summary,
-                        'recent_issues': recent_issues,
-                        'upcoming_schedules': upcoming_schedules,
-                        'pickup_zones': pickup_zones,
-                        'messages': messages.get_messages(request=request),
-                        'resident': True,
-                    }
-
-                return render(request=request, template_name='wasteman/home.html', context=context)
+            return render(request, 'wasteman/home.html', context)
 
     except Exception as e:
+        # Handle exceptions and render the page accordingly
         context = {
             'resident': False,
         }
-        return render(request=request, template_name='wasteman/home.html', context=context)
+        return render(request, 'wasteman/home.html', context)
 
 
 @login_required(login_url='login')
