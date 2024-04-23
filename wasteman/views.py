@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404, redirect
 
 from accounts.forms import IssueReportForm
-from wasteman.models import Waste, Schedule, IssueReport, PickupZone, Resident, WasteCollector, CollectionStatus
+from wasteman.models import Waste, Schedule, IssueReport, PickupZone, Resident, WasteCollector, CollectionStatus, \
+    WasteType
 
 
 @login_required(login_url='login')
@@ -23,22 +25,33 @@ def home(request):
 
             if request.method == 'POST':
                 # Handle waste entry form submission
-                form = IssueReportForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, 'Issue reported successfully')
-                    return redirect('home')
-                else:
-                    messages.error(request, 'Error submitting issue report')
+                date = request.POST.get('date')
+                start_time = request.POST.get('startTime')
+                end_time = request.POST.get('endTime')
+                waste_type_name = request.POST.get('wasteTypeName')
+                waste_type_desc = request.POST.get('wasteTypeDesc')
+                pickup_zone_id = request.POST.get('pickupZone')
+                quantity = request.POST.get('quantity')
+
+                pickup_zone = get_object_or_404(PickupZone, pk=pickup_zone_id)
+                with transaction.atomic():
+                    waste_type = WasteType.objects.create(name=waste_type_name, description=waste_type_desc)
+                    waste_schedule = Schedule.objects.create(date=date, start_time=start_time, end_time=end_time,
+                                                             pickup_zone=pickup_zone)
+                    waste = Waste.objects.create(schedule=waste_schedule, quantity=quantity, user=resident.user,
+                                                 type=waste_type)
+                    waste.save()
+                messages.success(request, 'Waste entry created successfully')
+                return redirect('home')
 
             # Render home page for resident
             context = {
                 'waste_summary': waste_summary,
                 'recent_issues': recent_issues,
                 'upcoming_schedules': upcoming_schedules,
+                'messages': messages.get_messages(request),
                 'pickup_zones': pickup_zones,
                 'is_resident': True,
-                'form': IssueReportForm(),
             }
             print(f"User: {user} - Resident: {resident} - Waste Summary: {waste_summary}")
             return render(request, 'wasteman/home.html', context)
