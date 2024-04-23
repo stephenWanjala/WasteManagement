@@ -1,16 +1,13 @@
 {% extends 'wasteman/homepartial.html' %}
 {% block HomeContent %}
     <main class="main users chart-page" id="skip-target">
-       {% if resident %}
-       	 <div class="container">
-            <h2 class="main-title">Waste Summary DashBoard</h2>
+        {% if is_resident %}
+            {% include 'wasteman/resident.html' %}
+        {% else %}
+            <div class="container">
+            <h2 class="main-title  ">Hello Collector</h2>
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                <h1 class=" main-title  ">Schedule Waste Collection</h1>
-                <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-                   onclick="toggleFormVisibility()">
-                    <i class="fas fa-plus fa-sm text-white-50"></i> Add
-                </a>
-
+                <h1 class=" main-title  ">Available Waste Schedules</h1>
             </div>
             {% if messages %}
                 {% for message in messages %}
@@ -20,48 +17,105 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            <div class="row">
-                <div class="col-lg-10">
-
-                    <div class="users-table table-wrapper">
-                        <table class="posts-table">
+            <div class="col-lg-10">
+                <div class="users-table table-wrapper">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
                             <thead>
-                            <tr class="users-table-info">
-                                <th>Waste</th>
-                                <th>Waste Type</th>
-                                <th>Quantity</th>
-                                <th>Location</th>
-                                <th>Schedule</th>
+                            <tr>
+                                <th>Pickup Zone</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for waste in waste_summary %}
+                            {% for schedule in unassigned_schedules %}
                                 <tr>
+                                    <td>{{ schedule.pickup_zone.name }}</td>
+                                    <td>{{ schedule.date }}</td>
+                                    <td>{{ schedule.start_time }} - {{ schedule.end_time }}</td>
                                     <td>
-                                        {{ waste.type.name }}
+                                        <form method="POST" action="{% url 'update_schedule' schedule.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary">Add Me</button>
+                                        </form>
                                     </td>
-                                    <td>
-                                        <div class="pages-table-img">
-                                            {{ waste.type.description }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {{ waste.quantity }} Kg
-
-                                    <td>{{ waste.user.address }}</td>
-                                    <td>{{ waste.schedule }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No unassigned schedules</td>
                                 </tr>
                             {% endfor %}
-
-
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                {% include 'wasteman/schedule_waste_modal.html' %}
             </div>
-        </div>
-       {% endif %}
+
+
+
+            <div>
+                <h2>Assigned Schedules</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Pickup Zone</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for schedule in assigned_schedules %}
+                            <tr>
+                                <td>{{ schedule.pickup_zone.name }}</td>
+                                <td>{{ schedule.date }}</td>
+                                <td>{{ schedule.start_time }} - {{ schedule.end_time }}</td>
+                                <td>{{ schedule.collectionstatus.status }}</td>
+                                <td>
+                                    {% if schedule.collectionstatus.status == 'Pending' %}
+                                        <form method="POST"
+                                              action="{% url 'update_status' schedule.collectionstatus.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="In Progress">
+                                            <button type="submit" class="btn btn-success">Start Collection</button>
+                                        </form>
+                                    {% elif schedule.collectionstatus.status == 'In Progress' %}
+                                        <form method="POST"
+                                              action="{% url 'update_status' schedule.collectionstatus.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="Completed">
+                                            <button type="submit" class="btn btn-warning">Complete Collection</button>
+                                        </form>
+                                    {% endif %}
+
+
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No assigned schedules</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Display messages -->
+                {% if messages %}
+                    <div class="alert alert-info">
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
     </main>
 {% endblock %}

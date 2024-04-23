@@ -1,0 +1,63 @@
+<div class="container">
+    <h2 class="main-title">Waste Summary DashBoard</h2>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class=" main-title  ">Schedule Waste Collection</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+           onclick="toggleFormVisibility()">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add
+        </a>
+
+    </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="row">
+        <div class="col-lg-10">
+
+            <div class="users-table table-wrapper">
+                <table class="posts-table">
+                    <thead>
+                    <tr class="users-table-info">
+                        <th>Waste</th>
+                        <th>Waste Type</th>
+                        <th>Quantity</th>
+                        <th>Location</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for waste in waste_summary %}
+                        <tr>
+                            <td>
+                                {{ waste.type.name }}
+                            </td>
+                            <td>
+                                <div class="pages-table-img">
+                                    {{ waste.type.description }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ waste.quantity }} Kg
+
+                            <td>{{ waste.user.address }}</td>
+                            <td>{{ waste.schedule }}</td>
+                            <td>{{ waste.schedule.collectionstatus.status }}</td>
+
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% include 'wasteman/schedule_waste_modal.html' %}
+    </div>
+</div>

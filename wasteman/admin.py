@@ -33,7 +33,7 @@ class WasteCollectorAdmin(admin.ModelAdmin):
 
 @admin.register(models.CollectionStatus)
 class CollectionStatusAdmin(admin.ModelAdmin):
-    list_display = ('collector', 'schedule', 'status')
+    list_display = ('id','collector', 'schedule', 'status')
     list_filter = ('collector', 'schedule')
     search_fields = ('collector', 'schedule')
     ordering = ('collector', 'schedule')
